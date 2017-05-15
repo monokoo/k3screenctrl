@@ -17,7 +17,9 @@ fi
 
 FW_VERSION=${BUILD_ID:0:17}
 
+CPU_TEMP=$(($(cat /sys/class/thermal/thermal_zone0/temp)/1000))
+
 echo $PRODUCT_NAME
-echo $HW_VERSION
+echo $HW_VERSION " " $CPU_TEMP
 echo $FW_VERSION
 echo $MAC_ADDR
