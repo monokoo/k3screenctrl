@@ -15,7 +15,7 @@ else
     echo $HW_VERSION > $HW_VERSION_CACHE_FILE
 fi
 
-FW_VERSION=${BUILD_ID:0:17}
+FW_VERSION=$(cat /etc/openwrt_release |grep DISTRIB_RELEASE|awk -F"'" '{print $2}')
 
 echo $PRODUCT_NAME
 echo $HW_VERSION
