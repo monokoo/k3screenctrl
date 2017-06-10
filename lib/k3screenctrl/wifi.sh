@@ -16,9 +16,15 @@ print_wifi_info() {
             enabled=1
         fi
     fi
-
+    
+	hide=$(uci get k3screenctrl.@general[0].pawd_hide)
+	
     echo $ssid
-    echo $psk
+    if [ $hide -eq 1 ]; then
+        echo $psk | sed 's/./*/g'
+    else
+        echo $psk
+    fi
     echo $enabled
     echo $client_count
 }
