@@ -4,21 +4,19 @@
 online_list=($(grep -v "0x0" /proc/net/arp | grep "br-lan" |awk '{print $1}'))
 mac_online_list=($(grep -v "0x0" /proc/net/arp | grep "br-lan" |awk '{print $4}'))
 
-arp_ip=($(grep -v "0x0" /proc/net/arp | grep "br-lan" |awk '{print $1}'))
-
 if [ -z "$(iptables --list | grep UPSP)" -a -z "$(iptables --list | grep DWSP)" ]; then
 	iptables -N UPSP
 	iptables -N DWSP
 	mkdir /tmp/lan_speed
 fi
-for ((i=0;i<${#arp_ip[@]};i++))
+for ((i=0;i<${#online_list[@]};i++))
 do
-	if [ -z "$(iptables -nvx -L FORWARD | grep DWSP | grep ${arp_ip[i]})" -a -z "$(iptables -nvx -L FORWARD | grep UPSP | grep ${arp_ip[i]})" ]; then
-		iptables -I FORWARD 1 -s ${arp_ip[i]} -j UPSP
-		iptables -I FORWARD 1 -d ${arp_ip[i]} -j DWSP
-		echo $(date +%s) > /tmp/lan_speed/${arp_ip[i]}
-		echo 0 >> /tmp/lan_speed/${arp_ip[i]}
-		echo 0 >> /tmp/lan_speed/${arp_ip[i]}
+	if [ -z "$(iptables -nvx -L FORWARD | grep DWSP | grep ${online_list[i]})" -a -z "$(iptables -nvx -L FORWARD | grep UPSP | grep ${online_list[i]})" ]; then
+		iptables -I FORWARD 1 -s ${online_list[i]} -j UPSP
+		iptables -I FORWARD 1 -d ${online_list[i]} -j DWSP
+		echo $(date +%s) > /tmp/lan_speed/${online_list[i]}
+		echo 0 >> /tmp/lan_speed/${online_list[i]}
+		echo 0 >> /tmp/lan_speed/${online_list[i]}
 	fi
 done
 
