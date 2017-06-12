@@ -1,8 +1,8 @@
 #!/bin/bash
 # Copyright (C) 2017 XiaoShan https://www.mivm.cn
 
-online_list=($(grep -v "0x0" /proc/net/arp | grep "br-lan" |awk '{print $1}'))
-mac_online_list=($(grep -v "0x0" /proc/net/arp | grep "br-lan" |awk '{print $4}'))
+online_list=($(grep -w "0x2" /proc/net/arp | grep "br-lan" |awk '{print $1}'))
+mac_online_list=($(grep -w "0x2" /proc/net/arp | grep "br-lan" |awk '{print $4}'))
 
 if [ -z "$(iptables --list | grep UPSP)" -a -z "$(iptables --list | grep DWSP)" ]; then
 	iptables -N UPSP
