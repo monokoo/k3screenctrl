@@ -1,8 +1,8 @@
 #!/bin/bash
 # Copyright (C) 2017 XiaoShan https://www.mivm.cn
 
-online_list=($(grep -w "0x2" /proc/net/arp | grep "br-lan" |awk '{print $1}'))
-mac_online_list=($(grep -w "0x2" /proc/net/arp | grep "br-lan" |awk '{print $4}'))
+online_list=($(grep -v "0x0" /proc/net/arp | grep "br-lan" |awk '{print $1}'))
+mac_online_list=($(grep -v "0x0" /proc/net/arp | grep "br-lan" |awk '{print $4}'))
 
 if [ -z "$(iptables --list | grep UPSP)" -a -z "$(iptables --list | grep DWSP)" ]; then
 	iptables -N UPSP
@@ -69,7 +69,7 @@ if [ -s "/tmp/arp_refresh_time" ]; then
 		echo ${#online_list[@]} > /tmp/lan_online_list.temp
 		for ((i=0;i<${#online_list[@]};i++))
 		do
-			#arp -d ${online_list[i]}
+			arp -d ${online_list[i]}
 			echo ${hostname[i]} >> /tmp/lan_online_list.temp
 			echo ${dw_sp[i]} >> /tmp/lan_online_list.temp
 			echo ${up_sp[i]} >> /tmp/lan_online_list.temp
