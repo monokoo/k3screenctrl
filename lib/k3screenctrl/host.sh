@@ -1,5 +1,6 @@
 #!/bin/bash
 # Copyright (C) 2017 XiaoShan https://www.mivm.cn
+[ -z "$(pidof dnsmasq)" ] && /etc/init.d/dnsmasq reload
 
 online_list=($(grep -v "0x0" /proc/net/arp | grep "br-lan" |awk '{print $1}'))
 mac_online_list=($(grep -v "0x0" /proc/net/arp | grep "br-lan" |awk '{print $4}'))
