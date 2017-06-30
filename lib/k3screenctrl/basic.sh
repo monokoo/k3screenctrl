@@ -6,7 +6,7 @@ PRODUCT_NAME=${PRODUCT_NAME_FULL#* } # Remove first word to save space
 WAN_IFNAME=$(uci get network.wan.ifname)
 MAC_ADDR=$(ifconfig $WAN_IFNAME | grep -oE "([0-9A-Z]{2}:){5}[0-9A-Z]{2}")
 CPU_TEMP=$(($(cat /sys/class/thermal/thermal_zone0/temp) / 1000))
-disp=$(uci get k3screenctrl.@general[0].disp_cputemp)
+disp=$(uci get k3screenctrl.@general[0].cputemp)
 HW_VERSION=${LEDE_DEVICE_REVISION:0:3}
 FW_VERSION=${PRETTY_NAME:0:19}
 
