@@ -1,5 +1,15 @@
 #!/bin/sh
-
+##Auto update LanIP when conflicts with wanIP.
+[ "$(uci get network.wan.proto)" = "dhcp" ] && {
+	devname=$(uci get network.wan.ifname)
+	wanip=$(ifconfig $devname | grep "inet addr:" | grep -E -o "[0-9]+\.[0-9]+\.[0-9]+\."|head -1)1
+	lanip=$(uci get network.lan.ipaddr)
+	if [ "$lanip" = "$wanip" ]; then
+			uci set network.lan.ipaddr=192.168.4.1
+			uci commit network
+			/etc/init.d/network restart
+	fi
+}
 # Basic vars
 TEMP_FILE="/tmp/k3screenctrl/wan_speed"
 WAN_STAT=`ifstatus wan`
