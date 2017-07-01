@@ -17,6 +17,8 @@ for ((i=0;i<${#online_list_ip[@]};i++))
 do
 	temp_file=$temp_dir/device_speed/${online_list_ip[i]}
 	[ -s  $temp_file ] || {
+		[ -z "$(iptables --list | grep K3_SEREEN_U)" ] && iptables -N K3_SEREEN_U
+		[ -z "$(iptables --list | grep K3_SEREEN_D)" ] && iptables -N K3_SEREEN_D
 		[ -z "$(iptables -nvx -L FORWARD | grep -w K3_SEREEN_U | grep -w ${online_list_ip[i]})" ] && iptables -I FORWARD 1 -s ${online_list_ip[i]} -j K3_SEREEN_U
 		[ -z "$(iptables -nvx -L FORWARD | grep -w K3_SEREEN_D | grep -w ${online_list_ip[i]})" ] && iptables -I FORWARD 1 -d ${online_list_ip[i]} -j K3_SEREEN_D
 		echo -e "0\n0" > $temp_file
