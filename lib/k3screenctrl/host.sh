@@ -39,7 +39,7 @@ do
 	device_custom=($(echo -e "$device_custom_data" |grep -w -i ${online_list_mac[i]}))
 	name=${device_custom[1]=${online_list_host[i]}}
 	logo=${device_custom[2]=$(echo -e "$oui_data" | grep -w -i ${hostmac:0:6} | awk '{print $1}')}
-	[ "$name" = "?" ] && name=${online_list_host[i]} && [ "$name" = "*" -o -z "$name" ] && name="Unknown"
+	[ "$name" = "?" -o -z "$name" ] && name=${online_list_host[i]} && [ "$name" = "*" -o -z "$name" ] && name="Unknown"
 	last_data=($(cat $temp_file))
 	last_speed_u=${last_data[0]}
 	last_speed_d=${last_data[1]}
