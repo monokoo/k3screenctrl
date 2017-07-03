@@ -6,7 +6,7 @@ temp_dir=/tmp/k3screenctrl
 dhcp_leases=$(uci get dhcp.@dnsmasq[0].leasefile)
 online_list_ip=($(cat $dhcp_leases | awk '{print $3}'))
 online_list_mac=($(cat $dhcp_leases | awk '{print $2}'))
-online_list_host=($(cat $dhcp_leases | awk '{print $4}'))
+online_list_host=($(cat $dhcp_leases | awk '{print $4}' | sed 's/*/replacefork3/g'))
 oui_data=$(cat /etc/oui/oui.txt)
 last_time=$(cat $temp_dir/device_speed/time 2>/dev/null || date +%s)
 curr_time=$(date +%s)
@@ -40,7 +40,7 @@ do
 	name=${device_custom[1]=${online_list_host[i]}}
 	logo=${device_custom[2]=$(echo -e "$oui_data" | grep -w -i ${hostmac:0:6} | awk '{print $1}')}
 	[ "$name" = "?" -o -z "$name" ] && name=${online_list_host[i]}
-	[ "$name" = "*" -o -z "$name" ] && name="Unknown"
+	[ "$name" = "replacefork3" -o -z "$name" ] && name="Unknown"
 	last_data=($(cat $temp_file))
 	last_speed_u=${last_data[0]}
 	last_speed_d=${last_data[1]}
