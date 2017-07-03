@@ -17,8 +17,8 @@ for ((i=0;i<${#online_list_ip[@]};i++))
 do
 	temp_file=$temp_dir/device_speed/${online_list_ip[i]}
 	[ -s  $temp_file ] || {
-		[ -z "$(iptables --list | grep K3_SEREEN_U)" ] && iptables -N K3_SEREEN_U
-		[ -z "$(iptables --list | grep K3_SEREEN_D)" ] && iptables -N K3_SEREEN_D
+		[ -z "$(iptables --list | grep -w K3_SEREEN_U)" ] && iptables -N K3_SEREEN_U
+		[ -z "$(iptables --list | grep -w K3_SEREEN_D)" ] && iptables -N K3_SEREEN_D
 		[ -z "$(iptables -nvx -L FORWARD | grep -w K3_SEREEN_U | grep -w ${online_list_ip[i]})" ] && iptables -I FORWARD 1 -s ${online_list_ip[i]} -j K3_SEREEN_U
 		[ -z "$(iptables -nvx -L FORWARD | grep -w K3_SEREEN_D | grep -w ${online_list_ip[i]})" ] && iptables -I FORWARD 1 -d ${online_list_ip[i]} -j K3_SEREEN_D
 		echo -e "0\n0" > $temp_file
@@ -32,14 +32,14 @@ device_custom_data=$(cat $temp_dir/device_custom)
 
 for ((i=0;i<${#online_list_ip[@]};i++))
 do
-	online_code=$(echo -e "$online_code_data" | grep ${online_list_ip[i]} | awk '{print $2}') && [ -z "$online_code" ] && online_code=0
+	online_code=$(echo -e "$online_code_data" | grep -w ${online_list_ip[i]} | awk '{print $2}') && [ -z "$online_code" ] && online_code=0
 	[ $online_code -ne 0 ] && continue
 	hostmac=${online_list_mac[i]//:/}
 	temp_file=$temp_dir/device_speed/${online_list_ip[i]}
 	device_custom=($(echo -e "$device_custom_data" |grep -w -i ${online_list_mac[i]}))
 	name=${device_custom[1]=${online_list_host[i]}}
 	logo=${device_custom[2]=$(echo -e "$oui_data" | grep -w -i ${hostmac:0:6} | awk '{print $1}')}
-	[ "$name" = "?" -o -z "$name" ] && name=${online_list_host[i]} && [ "$name" = "*" -o -z "$name" ] && name="Unknown"
+	[ "$name" = "?" -o -z "$name" ] && name=${online_list_host[i]} || [ "$name" = "*" -o -z "$name" ] && name="Unknown"
 	last_data=($(cat $temp_file))
 	last_speed_u=${last_data[0]}
 	last_speed_d=${last_data[1]}
