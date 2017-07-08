@@ -12,7 +12,7 @@ print_eth_port_status() {
 }
 
 print_usb_port_status() {
-    if [ "`ls -1 /sys/bus/usb/devices | wc -l`" -gt 8 ]; then
+    if [ "`ls -1 /sys/bus/usb/devices | wc -l`" -gt 5 ]; then
         echo 1
     else
         echo 0
