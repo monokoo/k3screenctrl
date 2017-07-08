@@ -2,7 +2,7 @@
 #watch for xunlei 
 [ "$(uci get xunlei.config.enable)" -eq 1 ] && {
 	if [ -z "$(pgrep ETMDaemon)" ]; then
-		[ -n "$(uci get xunlei.config.file)" ] && $(uci get xunlei.config.file)/xunlei/portal >/dev/null 2>&1
+		[ -n "$(uci get xunlei.config.file)" ] && $(uci get xunlei.config.file)/xunlei/portal >/var/log/xunlei-watch.log 2>&1
 	# else
 		# [ "$(pgrep EmbedThunderManager|wc -l)" -gt 15 ] && \
 			# /etc/init.d/xunlei restart
