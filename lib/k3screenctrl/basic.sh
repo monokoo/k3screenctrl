@@ -12,7 +12,7 @@ FW_VERSION=v$HW_VERSION" "${DISTRIB_RELEASE:0:9}
 
 echo $PRODUCT_NAME
 if [ "$disp" -eq 1 ]; then
-	echo $HW_VERSION $CPU_TEMP
+	echo $CPU_TEMP
 else
 	echo $HW_VERSION
 fi
