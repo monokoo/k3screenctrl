@@ -9,10 +9,12 @@ MAC_ADDR=$(ifconfig $WAN_IFNAME | grep -oE "([0-9A-Z]{2}:){5}[0-9A-Z]{2}")
 RUPTIME=$(awk '{print int($1/86400)"days "int($1%86400/3600)"h "int(($1%3600)/60)"m"}' /proc/uptime)
 router_uptime=$(uci get k3screenctrl.@general[0].router_uptime)
 
-CPU_TEMP=$(($(cat /sys/class/thermal/thermal_zone0/temp) / 1000))
+CPU_TEMP=$(($(cat /sys/class/thermal/thermal_zone0/temp) / 1000))"'C"
 disp=$(uci get k3screenctrl.@general[0].cputemp)
-HW_VERSION=${DISTRIB_CODENAME:1:5}
-FW_VERSION=v$HW_VERSION" "${DISTRIB_RELEASE:0:9}
+
+HW_VERSION=$(cat /etc/os-release | grep -w "PRETTY_NAME" | awk '{print $2}')
+temp_arg=$(cat /etc/openwrt_release | grep -w "DISTRIB_CODENAME" | awk -F"'" '{print $2}')
+FW_VERSION=$temp_arg" "${DISTRIB_RELEASE:0:9}
 
 echo $PRODUCT_NAME
 if [ "$disp" -eq 1 ]; then
@@ -22,7 +24,7 @@ else
 fi
 echo $FW_VERSION
 if [ "$router_uptime" -eq 1 ]; then
-	echo $MAC_ADDR
-else
 	echo $RUPTIME
+else
+	echo $MAC_ADDR
 fi
