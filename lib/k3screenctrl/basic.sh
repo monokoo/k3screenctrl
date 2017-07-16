@@ -13,8 +13,7 @@ CPU_TEMP=$(($(cat /sys/class/thermal/thermal_zone0/temp) / 1000))"'C"
 disp=$(uci get k3screenctrl.@general[0].cputemp)
 
 HW_VERSION=$(cat /etc/os-release | grep -w "PRETTY_NAME" | awk '{print $2}')
-temp_arg=$(cat /etc/openwrt_release | grep -w "DISTRIB_CODENAME" | awk -F"'" '{print $2}')
-FW_VERSION=$temp_arg" "${DISTRIB_RELEASE:0:9}
+FW_VERSION=$HW_VERSION" "${DISTRIB_RELEASE:0:9}
 
 echo $PRODUCT_NAME
 if [ "$disp" -eq 1 ]; then
