@@ -1,36 +1,57 @@
 #!/bin/sh
-##Auto update LanIP when conflicts with wanIP.
-[ "$(uci get network.wan.proto)" = "dhcp" ] && {
-	devname=$(uci get network.wan.ifname)
-	wanip=$(ifconfig $devname | grep "inet addr:" | grep -E -o "[0-9]+\.[0-9]+\.[0-9]+\."|head -1)1
-	lanip=$(uci get network.lan.ipaddr)
-	if [ "$lanip" = "$wanip" ]; then
-			uci set network.lan.ipaddr=192.168.4.1
-			uci commit network
-			/etc/init.d/network restart
-	fi
-}
+
 # Basic vars
 TEMP_FILE="/tmp/k3screenctrl/wan_speed"
-WAN_STAT=`ifstatus wan`
-WAN6_STAT=`ifstatus wan6`
+WAN_STAT="/tmp/k3screenctrl/ifstatus_wan"
+WAN6_STAT="/tmp/k3screenctrl/ifstatus_wan6"
+LAN_STAT="/tmp/k3screenctrl/ifstatus_lan"
 
-# Internet connectivity
-IPV4_ADDR=`echo $WAN_STAT | jsonfilter -e "@['ipv4-address']"`
-IPV6_ADDR=`echo $WAN6_STAT | jsonfilter -e "@['ipv6-address']"`
+RMODE=`uci get k3screenctrl.@general[0].route_mode 2>/dev/null`
+[ -z "$RMODE" ] && APMODE="none"
+if [ "$RMODE" != "apmode" ]; then
 
-if [ -n "$IPV4_ADDR" -o -n "$IPV6_ADDR" ]; then
-    CONNECTED=1
+	##Auto update LanIP when conflicts with wanIP.
+	[ "$(uci get network.wan.proto 2>/dev/null)" = "dhcp" ] && {
+		devname=$(uci get network.wan.ifname 2>/dev/null)
+		wanip=$(ifconfig $devname | grep "inet addr:" | grep -E -o "[0-9]+\.[0-9]+\.[0-9]+\."|head -1)1
+		lanip=$(uci get network.lan.ipaddr 2>/dev/null)
+		if [ "$lanip" = "$wanip" ]; then
+				uci set network.lan.ipaddr=192.168.4.1
+				uci commit network
+				/etc/init.d/network restart
+		fi
+	}
+
+	ifstatus wan > $WAN_STAT
+	ifstatus wan6 > $WAN6_STAT
+
+	# Internet connectivity
+	IPV4_ADDR=`cat "$WAN_STAT" | grep -w '"address":' | awk -F'"' '{print $4}'`
+	IPV6_ADDR=`cat "$WAN6_STAT" | grep -w '"address":' | awk -F'"' '{print $4}'`
+	
+	if [ -n "$IPV4_ADDR" -o -n "$IPV6_ADDR" ]; then
+		CONNECTED=1
+	else
+		CONNECTED=0
+	fi
+	
+	WAN_IFNAME=`cat "$WAN_STAT" | grep -w '"l3_device":' | awk -F'"' '{print $4}'` # pppoe-wan
+	if [ -z "$WAN_IFNAME" ]; then
+		WAN_IFNAME=`cat "$WAN_STAT" | grep -w '"device":' | awk -F'"' '{print $4}'` # eth0.2
+		if [ -z "$WAN_IFNAME" ]; then
+			WAN_IFNAME=`uci get network.wan.ifname` # eth0.2
+		fi
+	fi
 else
-    CONNECTED=0
-fi
+	ifstatus lan > $LAN_STAT
+	IPV4_ADDR=`cat "$LAN_STAT" | grep -w '"address":' | awk -F'"' '{print $4}'`
+	if [ -n "$IPV4_ADDR" ]; then
+		CONNECTED=1
+	else
+		CONNECTED=0
+	fi
 
-WAN_IFNAME=`echo $WAN_STAT | jsonfilter -e "@.l3_device"` # pppoe-wan
-if [ -z "$WAN_IFNAME" ]; then
-    WAN_IFNAME=`echo $WAN_STAT | jsonfilter -e "@.device"` # eth0.2
-    if [ -z "$WAN_IFNAME" ]; then
-        WAN_IFNAME=`uci get network.wan.ifname` # eth0.2
-    fi
+	WAN_IFNAME="br-lan" #AP Mode
 fi
 # If there is still no WAN iface found, the script will fail - but that's rare
 
@@ -38,7 +59,7 @@ fi
 # NOTE: /proc/net/dev updates every ~1s.
 # You must call this script with longer interval!
 CURR_TIME=$(date +%s)
-CURR_STAT=$(cat /proc/net/dev | grep $WAN_IFNAME | sed -e 's/^ *//' -e 's/  */ /g')
+CURR_STAT=$(cat /proc/net/dev | grep -w "${WAN_IFNAME}:" | sed -e 's/^ *//' -e 's/  */ /g')
 CURR_DOWNLOAD_BYTES=$(echo $CURR_STAT | cut -d " " -f 2)
 CURR_UPLOAD_BYTES=$(echo $CURR_STAT | cut -d " " -f 10)
 
