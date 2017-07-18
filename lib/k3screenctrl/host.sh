@@ -2,9 +2,9 @@
 # Copyright (C) 2017 XiaoShan https://www.mivm.cn
 [ -z "$(pidof dnsmasq)" ] && /etc/init.d/dnsmasq reload
 
-RMODE=`uci get k3screenctrl.@general[0].route_mode 2>/dev/null`
-[ -z "$RMODE" ] && APMODE="none"
-if [ "$RMODE" != "apmode" ]; then
+APMODE=`uci get k3screenctrl.@general[0].dis_apdata 2>/dev/null`
+[ -z "$APMODE" ] && APMODE=0
+if [ "$APMODE" -eq 0 ]; then
 	temp_dir=/tmp/k3screenctrl
 	dhcp_leases=$(uci get dhcp.@dnsmasq[0].leasefile 2>/dev/null)
 	online_list_ip=($(cat $dhcp_leases | awk '{print $3}'))

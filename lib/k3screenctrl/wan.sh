@@ -6,9 +6,9 @@ WAN_STAT="/tmp/k3screenctrl/ifstatus_wan"
 WAN6_STAT="/tmp/k3screenctrl/ifstatus_wan6"
 LAN_STAT="/tmp/k3screenctrl/ifstatus_lan"
 
-RMODE=`uci get k3screenctrl.@general[0].route_mode 2>/dev/null`
-[ -z "$RMODE" ] && APMODE="none"
-if [ "$RMODE" != "apmode" ]; then
+APMODE=`uci get k3screenctrl.@general[0].dis_apdata 2>/dev/null`
+[ -z "$APMODE" ] && APMODE=0
+if [ "$APMODE" -eq 0 ]; then
 
 	##Auto update LanIP when conflicts with wanIP.
 	[ "$(uci get network.wan.proto 2>/dev/null)" = "dhcp" ] && {
