@@ -1,6 +1,5 @@
 #!/bin/bash
 # Copyright (C) 2017 XiaoShan https://www.mivm.cn
-[ -z "$(pidof dnsmasq)" ] && /etc/init.d/dnsmasq reload
 
 if [ "$(cat /etc/k3screenctrl-apmode)" -eq 0 ]; then
 	temp_dir=/tmp/k3screenctrl

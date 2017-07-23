@@ -1,4 +1,5 @@
 #!/bin/sh
+[ -z "$(pidof dnsmasq)" ] && /etc/init.d/dnsmasq reload
 
 COMPLETE_STAT=`wifi status`
 

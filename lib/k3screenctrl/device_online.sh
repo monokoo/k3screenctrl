@@ -1,13 +1,5 @@
 #!/bin/sh
-#watch for xunlei 
-[ "$(uci get xunlei.config.enable)" -eq 1 ] && {
-	if [ -z "$(pgrep ETMDaemon)" ]; then
-		[ -n "$(uci get xunlei.config.file)" ] && $(uci get xunlei.config.file)/xunlei/portal >/var/log/xunlei-watch.log 2>&1
-	# else
-		# [ "$(pgrep EmbedThunderManager|wc -l)" -gt 15 ] && \
-			# /etc/init.d/xunlei restart
-	fi
-}
+[ -z "$(pidof dnsmasq)" ] && /etc/init.d/dnsmasq reload
 
 file=/tmp/k3screenctrl/device_online
 if [ $# -eq 0 ]; then
