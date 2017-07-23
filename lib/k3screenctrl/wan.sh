@@ -5,6 +5,7 @@ TEMP_FILE="/tmp/k3screenctrl/wan_speed"
 WAN_STAT="/tmp/k3screenctrl/ifstatus_wan"
 WAN6_STAT="/tmp/k3screenctrl/ifstatus_wan6"
 LAN_STAT="/tmp/k3screenctrl/ifstatus_lan"
+DEV_STAT="/tmp/k3screenctrl/dev_stat"
 
 if [ "$(cat /etc/k3screenctrl-apmode)" -eq 0 ]; then
 
@@ -20,7 +21,12 @@ if [ "$(cat /etc/k3screenctrl-apmode)" -eq 0 ]; then
 		fi
 	}
 
-	ifstatus wan > $WAN_STAT
+	[ -f "$WAN_STAT" ] && rm -f $WAN_STAT
+	for wanname in `uci show network |grep -w "proto=" |awk -F'.' '{print $2}' |grep -v 'lan\|loopback'`
+	do
+		[ `uci -q get network.$wanname.proto` == "none" ] && continue
+		ifstatus $wanname >> $WAN_STAT
+	done
 	ifstatus wan6 > $WAN6_STAT
 
 	# Internet connectivity
@@ -56,10 +62,19 @@ fi
 # Calculate speed by traffic delta / time delta
 # NOTE: /proc/net/dev updates every ~1s.
 # You must call this script with longer interval!
+CURR_DOWNLOAD_BYTES=0
+CURR_UPLOAD_BYTES=0
+
 CURR_TIME=$(date +%s)
-CURR_STAT=$(cat /proc/net/dev | grep -w "${WAN_IFNAME}:" | sed -e 's/^ *//' -e 's/  */ /g')
-CURR_DOWNLOAD_BYTES=$(echo $CURR_STAT | cut -d " " -f 2)
-CURR_UPLOAD_BYTES=$(echo $CURR_STAT | cut -d " " -f 10)
+cat /proc/net/dev > $DEV_STAT
+for w_ifname in $WAN_IFNAME
+do
+	CURR_STAT=$(cat "$DEV_STAT" | grep -w "${w_ifname}:" | sed -e 's/^ *//' -e 's/  */ /g')
+	c_download_bytes=$(echo $CURR_STAT | cut -d " " -f 2)
+	c_upload_bytes=$(echo $CURR_STAT | cut -d " " -f 10)
+	CURR_DOWNLOAD_BYTES=$(($CURR_DOWNLOAD_BYTES + $c_download_bytes))
+	CURR_UPLOAD_BYTES=$(($CURR_UPLOAD_BYTES + $c_upload_bytes))
+done
 
 if [ -e "$TEMP_FILE" ]; then
     LINENO=0
