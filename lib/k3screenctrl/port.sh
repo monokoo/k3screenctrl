@@ -1,5 +1,8 @@
 #!/bin/sh
 
+usb3_setting=`uci -q get k3screenctrl.@general[0].usb3_disable`
+[ -z "$usb3_setting" ] && usb3_setting=0
+
 print_eth_port_status() {
     local port=$1
 
@@ -12,11 +15,19 @@ print_eth_port_status() {
 }
 
 print_usb_port_status() {
-    if [ "`ls -1 /sys/bus/usb/devices | wc -l`" -gt 5 ]; then
-        echo 1
-    else
-        echo 0
-    fi
+	if [ "$usb3_setting" -eq 0 ]; then
+		if [ "`ls -1 /sys/bus/usb/devices | wc -l`" -gt 8 ]; then
+			echo 1
+		else
+			echo 0
+		fi
+	else
+		if [ "`ls -1 /sys/bus/usb/devices | wc -l`" -gt 5 ]; then
+			echo 1
+		else
+			echo 0
+		fi
+	fi
 }
 
 print_eth_port_status 1 # Port 1 is LAN1 on label
