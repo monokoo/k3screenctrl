@@ -13,7 +13,7 @@ if [ "$(cat /etc/k3screenctrl-apmode)" -eq 0 ]; then
 	wan_proto=`uci -q get network.wan.proto`
 	[ -n "$wan_proto" ] && [ "$wan_proto" = "dhcp" ] && {
 		devname=$(uci get network.wan.ifname 2>/dev/null)
-		wanip=$(ifconfig $devname 2>/dev/null | grep "inet addr:" | grep -E -o "[0-9]+\.[0-9]+\.[0-9]+\."|head -1 2>/dev/null)1
+		wanip=$(ifconfig $devname 2>/dev/null | grep "inet addr:" | grep -E -o "[0-9]+\.[0-9]+\.[0-9]+\."|head -1)1
 		lanip=$(uci get network.lan.ipaddr 2>/dev/null)
 		[ -n "$lanip" -a -n "$wanip" ] && {
 			if [ "$lanip" = "$wanip" ]; then
