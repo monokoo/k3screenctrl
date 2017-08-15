@@ -5,7 +5,8 @@ PRODUCT_NAME_FULL=$(cat /etc/board.json | jsonfilter -e "@.model.name")
 PRODUCT_NAME=${PRODUCT_NAME_FULL#* } # Remove first word to save space
 WAN_IFNAME=$(uci get network.wan.ifname)
 
-MAC_ADDR=$(ifconfig $WAN_IFNAME | grep -oE "([0-9A-Z]{2}:){5}[0-9A-Z]{2}")
+MAC_ADDR=$(ifconfig $WAN_IFNAME 2>/dev/null | grep -oE "([0-9A-Z]{2}:){5}[0-9A-Z]{2}")
+[ -z "$MAC_ADDR" ] && MAC_ADDR=$(ifconfig eth0 2>/dev/null | grep -oE "([0-9A-Z]{2}:){5}[0-9A-Z]{2}")
 RUPTIME=$(awk '{print int($1/86400)"days "int($1%86400/3600)"h "int(($1%3600)/60)"m"}' /proc/uptime)
 router_uptime=$(uci get k3screenctrl.@general[0].router_uptime)
 

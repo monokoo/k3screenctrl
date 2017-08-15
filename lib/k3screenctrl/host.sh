@@ -44,8 +44,12 @@ if [ "$(cat /etc/k3screenctrl-apmode)" -eq 0 ]; then
 		last_data=($(cat $temp_file))
 		last_speed_u=${last_data[0]}
 		last_speed_d=${last_data[1]}
+		[ -z "$last_speed_u" ] && last_speed_u=0
+		[ -z "$last_speed_d" ] && last_speed_d=0
 		curr_speed_u=$(echo -e "$curr_speed_u_ipt" | grep -w ${online_list_ip[i]}  | awk '{print $2}')
 		curr_speed_d=$(echo -e "$curr_speed_d_ipt" | grep -w ${online_list_ip[i]}  | awk '{print $2}')
+		[ -z "$curr_speed_u" ] && curr_speed_u=0
+		[ -z "$curr_speed_d" ] && curr_speed_d=0
 		up=$(((${curr_speed_u} - $last_speed_u) / $time_s))
 		dp=$((($curr_speed_d - $last_speed_d) / $time_s))
 		temp_data="$name\n$dp\n$up\n${logo:=0}\n"

@@ -10,15 +10,18 @@ DEV_STAT="/tmp/k3screenctrl/dev_stat"
 if [ "$(cat /etc/k3screenctrl-apmode)" -eq 0 ]; then
 
 	##Auto update LanIP when conflicts with wanIP.
-	[ "$(uci get network.wan.proto 2>/dev/null)" = "dhcp" ] && {
+	wan_proto=`uci -q get network.wan.proto`
+	[ -n "$wan_proto" ] && [ "$wan_proto" = "dhcp" ] && {
 		devname=$(uci get network.wan.ifname 2>/dev/null)
-		wanip=$(ifconfig $devname | grep "inet addr:" | grep -E -o "[0-9]+\.[0-9]+\.[0-9]+\."|head -1)1
+		wanip=$(ifconfig $devname 2>/dev/null | grep "inet addr:" | grep -E -o "[0-9]+\.[0-9]+\.[0-9]+\."|head -1 2>/dev/null)1
 		lanip=$(uci get network.lan.ipaddr 2>/dev/null)
-		if [ "$lanip" = "$wanip" ]; then
-				uci set network.lan.ipaddr=192.168.4.1
-				uci commit network
-				/etc/init.d/network restart
-		fi
+		[ -n "$lanip" -a -n "$wanip" ] && {
+			if [ "$lanip" = "$wanip" ]; then
+					uci set network.lan.ipaddr=192.168.4.1
+					uci commit network
+					/etc/init.d/network restart
+			fi
+		}
 	}
 
 	[ -f "$WAN_STAT" ] && rm -f $WAN_STAT
@@ -66,15 +69,17 @@ CURR_DOWNLOAD_BYTES=0
 CURR_UPLOAD_BYTES=0
 
 CURR_TIME=$(date +%s)
-cat /proc/net/dev > $DEV_STAT
-for w_ifname in $WAN_IFNAME
-do
-	CURR_STAT=$(cat "$DEV_STAT" | grep -w "${w_ifname}:" | sed -e 's/^ *//' -e 's/  */ /g')
-	c_download_bytes=$(echo $CURR_STAT | cut -d " " -f 2)
-	c_upload_bytes=$(echo $CURR_STAT | cut -d " " -f 10)
-	CURR_DOWNLOAD_BYTES=$(($CURR_DOWNLOAD_BYTES + $c_download_bytes))
-	CURR_UPLOAD_BYTES=$(($CURR_UPLOAD_BYTES + $c_upload_bytes))
-done
+[ "$CONNECTED" -eq 1 ] && {
+	cat /proc/net/dev > $DEV_STAT
+	for w_ifname in $WAN_IFNAME
+	do
+		CURR_STAT=$(cat "$DEV_STAT" | grep -w "${w_ifname}:" | sed -e 's/^ *//' -e 's/  */ /g')
+		c_download_bytes=$(echo $CURR_STAT | cut -d " " -f 2)
+		c_upload_bytes=$(echo $CURR_STAT | cut -d " " -f 10)
+		CURR_DOWNLOAD_BYTES=$(($CURR_DOWNLOAD_BYTES + $c_download_bytes))
+		CURR_UPLOAD_BYTES=$(($CURR_UPLOAD_BYTES + $c_upload_bytes))
+	done
+}
 
 if [ -e "$TEMP_FILE" ]; then
     LINENO=0
