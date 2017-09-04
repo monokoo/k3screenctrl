@@ -13,7 +13,7 @@ MAC_ADDR=$(ifconfig $WAN_IFNAME 2>/dev/null | grep -oE "([0-9A-Z]{2}:){5}[0-9A-Z
 RUPTIME=$(awk '{print int($1/86400)"days "int($1%86400/3600)"h "int(($1%3600)/60)"m"}' /proc/uptime)
 router_uptime=$(uci get k3screenctrl.@general[0].router_uptime)
 
-CPU_TEMP=$(awk 'BEGIN{printf "%.3f\n",'$(cat /sys/class/thermal/thermal_zone0/temp)'/1000}')"'C"
+CPU_TEMP=$(awk 'BEGIN{printf "%.2f\n",'$(cat /sys/class/thermal/thermal_zone0/temp)'/1000}')"'C"
 disp=$(uci get k3screenctrl.@general[0].cputemp)
 
 HW_VERSION=$(cat /etc/os-release | grep -w "PRETTY_NAME" | awk '{print $2}')
