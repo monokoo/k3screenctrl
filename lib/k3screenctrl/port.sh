@@ -1,6 +1,6 @@
 #!/bin/sh
 
-usb3_setting=`uci -q get k3screenctrl.@general[0].usb3_disable`
+usb3_setting=`uci -q get advanced.base.usb3_disable`
 [ -z "$usb3_setting" ] && usb3_setting=0
 
 print_eth_port_status() {
