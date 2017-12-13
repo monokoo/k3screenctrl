@@ -6,7 +6,7 @@ PRODUCT_NAME=${PRODUCT_NAME_FULL#* } # Remove first word to save space
 router_uptime=$(uci get k3screenctrl.@general[0].router_uptime)
 disp=$(uci get k3screenctrl.@general[0].cputemp)
 HW_VERSION=$(cat /etc/os-release | grep -w "PRETTY_NAME" | awk '{print $2}')
-FW_VERSION=$HW_VERSION" "${DISTRIB_RELEASE:0:9}
+FW_VERSION=$HW_VERSION" By stones"
 
 echo $PRODUCT_NAME
 
