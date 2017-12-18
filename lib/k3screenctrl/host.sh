@@ -4,9 +4,9 @@
 if [ "$(cat /etc/k3screenctrl-apmode)" -eq 0 ]; then
 	temp_dir=/tmp/k3screenctrl
 	dhcp_leases=$(uci get dhcp.@dnsmasq[0].leasefile 2>/dev/null)
-	online_list_ip=($(cat $dhcp_leases | awk '{print $3}'))
-	online_list_mac=($(cat $dhcp_leases | awk '{print $2}'))
-	online_list_host=($(cat $dhcp_leases | awk '{print $4}' | sed 's/*/replacefork3/g'))
+	online_list_ip=($(cat $dhcp_leases | grep -E "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | awk '{print $3}'))
+	online_list_mac=($(cat $dhcp_leases | grep -E "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | awk '{print $2}'))
+	online_list_host=($(cat $dhcp_leases | grep -E "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | awk '{print $4}' | sed 's/*/replacefork3/g'))
 	oui_data=$(cat /etc/oui/oui.txt)
 	last_time=$(cat $temp_dir/device_speed/time 2>/dev/null || date +%s)
 	curr_time=$(date +%s)
@@ -71,7 +71,7 @@ else
 	
 	online_list_mac=($(cat $online_list_file | sed '/^$/d'))
 	dhcp_leases=$(uci get dhcp.@dnsmasq[0].leasefile 2>/dev/null)
-	online_list_ip=($(cat $dhcp_leases | awk '{print $3}'))
+	online_list_ip=($(cat $dhcp_leases | grep -E "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" | awk '{print $3}'))
 	online_list_host=($(cat $online_list_file | sed '/^$/d' | awk -F: '{print $4":"$5":"$6}'))
 	
 	oui_data=$(cat /etc/oui/oui.txt)
